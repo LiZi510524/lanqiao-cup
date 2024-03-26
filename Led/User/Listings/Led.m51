@@ -1,0 +1,118 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        01/25/2024  20:12:17  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+E:\APP\KEIL 5\C51\BIN\BL51.EXE .\Objects\main.obj TO .\Objects\Led PRINT (.\Listings\Led.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\main.obj (MAIN)
+  E:\APP\KEIL 5\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  .\Objects\Led (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     07FDH                  *** GAP ***
+            CODE    0800H     0022H     UNIT         ?PR?_DELAY?MAIN
+            CODE    0822H     0018H     UNIT         ?PR?MAIN?MAIN
+            CODE    083AH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\Led (MAIN)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN
+  +--> ?PR?_DELAY?MAIN
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\Led (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/25/2024  20:12:17  PAGE 2
+
+
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        CCON
+  C:0822H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  B:0090H.4       PUBLIC        Led5
+  B:0090H.6       PUBLIC        Led7
+  B:00A0H.5       PUBLIC        DIOLA
+  C:0804H         PUBLIC        _Delay
+  D:00D0H         PUBLIC        PSW
+  C:0800H         SYMBOL        L?0013
+  -------         PROC          L?0012
+  -------         ENDPROC       L?0012
+  C:0800H         SYMBOL        L?0013
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        a
+  -------         DO            
+  D:0004H         SYMBOL        b
+  -------         ENDDO         
+  C:0804H         LINE#         21
+  C:0804H         LINE#         22
+  C:0804H         LINE#         24
+  C:080EH         LINE#         25
+  C:080EH         LINE#         26
+  C:0821H         LINE#         27
+  C:0821H         LINE#         28
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  C:0822H         LINE#         42
+  C:0822H         LINE#         43
+  C:0822H         LINE#         44
+  C:0822H         LINE#         45
+  C:0822H         LINE#         46
+  C:0824H         LINE#         50
+  C:0827H         LINE#         53
+  C:082AH         LINE#         55
+  C:082CH         LINE#         56
+  C:082FH         LINE#         57
+  C:0831H         LINE#         58
+  C:0833H         LINE#         59
+  C:0836H         LINE#         60
+  C:0838H         LINE#         61
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 003AH BYTE ( 2%) *
+******************************************************************************
+
+Program Size: data=9.0 xdata=0 code=73
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

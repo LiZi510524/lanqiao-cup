@@ -1,0 +1,108 @@
+C51 COMPILER V9.54   MAIN                                                                  03/16/2024 16:23:15 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: E:\APP\Keil 5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\m
+                    -ain.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <STC15F2K60S2.H>
+   2          #include "hardware.h"
+   3          
+   4          void Timer0_Init();
+   5          void Timer1_Init();
+   6          void Timer1_ISR();
+   7          
+   8          unsigned int timer100ms=0;
+   9          unsigned int ne555=0;
+  10          
+  11          
+  12          void main()
+  13          {
+  14   1        
+  15   1        close();
+  16   1        Timer0_Init();
+  17   1        Timer1_Init();
+  18   1        
+  19   1        while(1)
+  20   1        {
+  21   2          
+  22   2          
+  23   2          if(ne555>100000)
+  24   2            digs[2]=ne555/100000;
+  25   2          else
+  26   2            digs[2]=16;
+  27   2          if(ne555>10000)
+  28   2            digs[3]=ne555/10000%10;
+  29   2          else
+  30   2            digs[3]=16;
+  31   2          if(ne555>1000)
+  32   2            digs[4]=ne555/1000%10;
+  33   2          else
+  34   2            digs[4]=16;
+  35   2          if(ne555>100)
+  36   2            digs[5]=ne555/100%10;
+  37   2          else
+  38   2            digs[5]=16;
+  39   2          digs[6]=ne555/10%10;
+  40   2          digs[7]=ne555%10;
+  41   2        }
+  42   1      }
+  43          
+  44          void Timer0_Init()    //100??@12.000MHz
+  45          {
+  46   1        AUXR |= 0x80;     //?????1T??
+  47   1        TMOD &= 0xF0;     //???????
+  48   1        TMOD|=0X04;
+  49   1        TL0 = 0;        //???????
+  50   1        TH0 = 0;        //???????
+  51   1        TF0 = 0;        //??TF0??
+  52   1        TR0=1;
+  53   1      }
+  54          
+C51 COMPILER V9.54   MAIN                                                                  03/16/2024 16:23:15 PAGE 2   
+
+  55          void Timer1_Init()    //1??@12.000MHz
+  56          {
+  57   1        AUXR |= 0x40;     //?????1T??
+  58   1        TMOD &= 0x0F;     //???????
+  59   1        TL1 = 0x20;       //???????
+  60   1        TH1 = 0xD1;       //???????
+  61   1        TF1 = 0;        //??TF1??
+  62   1        TR1 = 1;        //???1????
+  63   1        EA=1;
+  64   1        ET1=1;
+  65   1      }
+  66          
+  67          void Timer1_ISR() interrupt 3
+  68          {
+  69   1        seg_dis();
+  70   1        timer100ms++;
+  71   1        
+  72   1        if(timer100ms>=100)
+  73   1          {
+  74   2            timer100ms=0;
+  75   2            TR0=0;
+  76   2            ne555=((unsigned int)TH0<<8)|TL0;
+  77   2            ne555*=10;
+  78   2            TH0 = 0;        
+  79   2            TL0 = 0;    
+  80   2            TR0=1;
+  81   2          }
+  82   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    445    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,111 @@
+C51 COMPILER V9.54   HARDWARE                                                              02/05/2024 16:50:11 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE HARDWARE
+OBJECT MODULE PLACED IN .\Objects\hardware.obj
+COMPILER INVOKED BY: E:\APP\Keil 5\C51\BIN\C51.EXE hardware.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listin
+                    -gs\hardware.lst) TABS(2) OBJECT(.\Objects\hardware.obj)
+
+line level    source
+
+   1          #include "hardware.h"
+   2          
+   3          unsigned char com[]={0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};//数码管位
+   4          
+   5          /*************  本地常量声明    **************/
+   6          unsigned char code seg[]={                       //标准字库
+   7          //   0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
+   8              0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71,
+   9          //black  -     H    J    K    L    N    o   P    U     t    G    Q    r   M    y
+  10              0x00,0x40,0x76,0x1E,0x70,0x38,0x37,0x5C,0x73,0x3E,0x78,0x3d,0x67,0x50,0x37,0x6e,
+  11              0xBF,0x86,0xDB,0xCF,0xE6,0xED,0xFD,0x87,0xFF,0xEF,0x46};    //0. 1. 2. 3. 4. 5. 6. 7. 8. 9. -1
+  12          
+  13          void Timer1Init()   //1毫秒@12.000MHz
+  14          {
+  15   1        AUXR |= 0x40;     //定时器时钟1T模式
+  16   1        TMOD &= 0x0F;     //设置定时器模式
+  17   1        TL1 = 0x20;       //设置定时初始值
+  18   1        TH1 = 0xD1;       //设置定时初始值
+  19   1        TF1 = 0;        //清除TF1标志
+  20   1        TR1 = 1;        //定时器1开始计时
+  21   1        ET1 = 1;
+  22   1        EA = 1;
+  23   1      }   
+  24          
+  25          void Close()
+  26          {
+  27   1        P2=0x00;
+  28   1        
+  29   1        P0=0xff;
+  30   1        P2|=0x80;  //关闭Led
+  31   1        P2&=0x1f;
+  32   1        
+  33   1        P0=0x00;
+  34   1        P2|=0XC0; //关闭继电器、蜂鸣器
+  35   1        P2&=0x1f;
+  36   1      }
+  37          
+  38          unsigned char dis_buf[][8]=
+  39          {
+  40          {16,16,16,16,16,16,16,16},//test
+  41          {16,16,17,16,16,17,16,16},//时间
+  42          {16,16,16,16,16,16,16,16},//e2prom
+  43          {16,16,16,16,16,16,16,0x0C},//temperature
+  44          {0x0F,16,16,16,16,16,16,16},//ne555_frep
+  45          } ;
+  46          
+  47          //数码管显示 2
+  48          unsigned char *digs;
+  49          unsigned int timer10ms=0;
+  50          unsigned int timer250ms=0;
+  51          unsigned int timer1000ms=0;
+  52          void DIGs_show()
+  53          {
+  54   1        static unsigned char P_DIG=0;
+C51 COMPILER V9.54   HARDWARE                                                              02/05/2024 16:50:11 PAGE 2   
+
+  55   1        
+  56   1        Close();
+  57   1        
+  58   1        P0=~seg[digs[P_DIG]];//段选
+  59   1        P2|=0xE0;
+  60   1        P2&=0x1F;
+  61   1        
+  62   1        P0=com[P_DIG];//位选
+  63   1        P2|=0xC0;
+  64   1        P2&=0x1F;
+  65   1        
+  66   1        if(++P_DIG>=8)
+  67   1        {
+  68   2          P_DIG=0;
+  69   2        }
+  70   1      }
+  71          
+  72          void timer1_isr() interrupt 3
+  73          {
+  74   1        timer10ms++;
+  75   1        timer250ms++;
+  76   1        timer1000ms++;
+  77   1        DIGs_show();
+  78   1      }
+  79          
+  80          
+  81          
+  82          
+  83          
+  84          
+  85          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    163    ----
+   CONSTANT SIZE    =     43    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     58    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
