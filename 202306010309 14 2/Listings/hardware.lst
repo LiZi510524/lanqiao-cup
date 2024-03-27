@@ -1,0 +1,191 @@
+C51 COMPILER V9.54   HARDWARE                                                              03/27/2024 21:52:01 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE HARDWARE
+OBJECT MODULE PLACED IN .\Objects\hardware.obj
+COMPILER INVOKED BY: E:\APP\Keil 5\C51\BIN\C51.EXE hardware.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listin
+                    -gs\hardware.lst) TABS(2) OBJECT(.\Objects\hardware.obj)
+
+line level    source
+
+   1          #include "hardware.h"
+   2          
+   3          void Timer0_Init();
+   4          void Timer1_Init();
+   5          void Timer1_isr();
+   6          
+   7          /*************  ??????    **************/
+   8          u8 code t_display[]={                       //????
+   9          //   0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
+  10              0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71,
+  11          //black  -     H    J    K    L    N    o   P    U     t    G    Q    r   M    y
+  12              0x00,0x40,0x76,0x1E,0x70,0x38,0x37,0x5C,0x73,0x3E,0x78,0x3d,0x67,0x50,0x37,0x6e,
+  13              0xBF,0x86,0xDB,0xCF,0xE6,0xED,0xFD,0x87,0xFF,0xEF,0x46};    //0. 1. 2. 3. 4. 5. 6. 7. 8. 9. -1
+  14          
+  15          u8 code T_COM[]={0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};      //??
+  16          
+  17          u8 display[][8]=
+  18          {
+  19            {1,3,17,0,3,17,0,5},//时间界面
+  20            {12,16,2,8,17,2,35,2},//温度回显
+  21            {18,16,6,8,17,5,32,4},//湿度回显
+  22            {15,},//时间回显
+  23            {16},//参数界面
+  24            {16},//温湿度界面
+  25          };
+  26          
+  27          u8 timer100ms=0;
+  28          u8 timer10ms=0;
+  29          u8 *digs=&display;
+  30          u8 n=0;
+  31          u8 led=0xff;
+  32          u8 key_value,key_state=0;
+  33          u8 key_values[4][4]=
+  34          {
+  35            7,11,15,19,
+  36            6,10,14,18,
+  37            5,9,13,17,
+  38            4,8,12,16,
+  39          };
+  40          
+  41          
+  42          void close()
+  43          {
+  44   1        P2=0X00;
+  45   1        
+  46   1        P0=0X00;
+  47   1        P2|=0XA0;
+  48   1        P2&=0X1F;
+  49   1        
+  50   1        P0=0XFF;
+  51   1        P2|=0X80;
+  52   1        P2&=0X1F;
+  53   1      }
+  54          
+C51 COMPILER V9.54   HARDWARE                                                              03/27/2024 21:52:01 PAGE 2   
+
+  55          void seg_dis()
+  56          {
+  57   1        P0=0X00;
+  58   1        P2|=0XC0;
+  59   1        P2&=0X1F;
+  60   1        
+  61   1        P0=~t_display[digs[n]];
+  62   1        P2|=0XE0;
+  63   1        P2&=0X1F;
+  64   1        
+  65   1        P0=T_COM[n];
+  66   1        P2|=0XC0;
+  67   1        P2&=0X1F;
+  68   1        
+  69   1        if(++n>7)
+  70   1          n=0;
+  71   1      }
+  72          
+  73          void led_dis()
+  74          {
+  75   1        P0=led;
+  76   1        P2|=0X80;
+  77   1        P2&=0X1F;
+  78   1      }
+  79          
+  80          void key_scan()
+  81          {
+  82   1        u8 x,y;
+  83   1        
+  84   1        P3=0X0F;
+  85   1        P4=0X00;
+  86   1        if(~P3&0X0F)
+  87   1        {
+  88   2          if(key_state<255)
+  89   2            key_state++;
+  90   2          
+  91   2          if(P30==0)
+  92   2            x=0;
+  93   2          if(P31==0)
+  94   2            x=1;
+  95   2          if(P32==0)
+  96   2            x=2;
+  97   2          if(P33==0)
+  98   2            x=3;
+  99   2          
+ 100   2          P3=0XF0;
+ 101   2          P4=0XFF;
+ 102   2          if(P44==0)
+ 103   2            y=0;
+ 104   2          if(P42==0)
+ 105   2            y=1;
+ 106   2          if(P35==0)
+ 107   2            y=2;
+ 108   2          if(P34==0)
+ 109   2            y=3;
+ 110   2          
+ 111   2          key_value=key_values[x][y];
+ 112   2        }
+ 113   1        else
+ 114   1        {
+ 115   2          key_value=0;
+ 116   2          key_state=0;
+C51 COMPILER V9.54   HARDWARE                                                              03/27/2024 21:52:01 PAGE 3   
+
+ 117   2        }
+ 118   1      }
+ 119          
+ 120          unsigned int ne555()
+ 121          {
+ 122   1        unsigned int temp;
+ 123   1        
+ 124   1        TR0=0;
+ 125   1        temp=((unsigned int)TH0<<8)|TL0;
+ 126   1        
+ 127   1        TH0=0;
+ 128   1        TL0=0;
+ 129   1        TR0=1;
+ 130   1        
+ 131   1        return temp;
+ 132   1      }
+ 133          
+ 134          void Timer0_Init(void)    //1??@12.000MHz
+ 135          {
+ 136   1        AUXR |= 0x80;     //?????1T??
+ 137   1        TMOD &= 0xF0;     //???????
+ 138   1        TMOD |=0X04;
+ 139   1        TL0 = 0;        //???????
+ 140   1        TH0 = 0;        //???????
+ 141   1        TF0 = 0;        //??TF0??
+ 142   1        TR0 = 1;        //???0????
+ 143   1      }
+ 144          
+ 145          void Timer1_Init(void)    //1??@12.000MHz
+ 146          {
+ 147   1        AUXR |= 0x40;     //?????1T??
+ 148   1        TMOD &= 0x0F;     //???????
+ 149   1        TL1 = 0x20;       //???????
+ 150   1        TH1 = 0xD1;       //???????
+ 151   1        TF1 = 0;        //??TF1??
+ 152   1        TR1 = 1;        //???1????
+ 153   1        EA=1;
+ 154   1        ET1=1;
+ 155   1      }
+ 156          
+ 157          void Timer1_isr() interrupt 3
+ 158          {
+ 159   1        timer10ms++;
+ 160   1        read_ds1302();
+ 161   1        seg_dis();
+ 162   1        led_dis();
+ 163   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    306    ----
+   CONSTANT SIZE    =     51    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     73    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
